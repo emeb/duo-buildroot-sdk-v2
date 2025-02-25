@@ -41,3 +41,33 @@
        clock-frequency = <100000>;
 };
 
+// Below adds MAX98357A I2S speaker driver
+
+&i2s2 {
+	status = "okay";
+	#sound-dai-cells = <0>;
+};
+
+&i2s0 {
+	status = "okay";
+	#sound-dai-cells = <0>;
+};
+
+
+/ {
+	/* codec */
+	max98357a: max98357a {
+		#sound-dai-cells = <0>;
+		compatible = "maxim,max98357a";
+		status = "okay";
+		/*sdmode-gpios = <&gpio1 14 0>;*/ 
+		/* max98357a has gain & sd_mode gpio. but codec driver just has sdmode */
+	};
+
+	/* sound_ext3 use external codec */
+	sound {
+		compatible = "cvitek,cv1835-max98357a";
+		cvi,card_name = "cv1835_max98357a";
+	};
+
+};

@@ -197,3 +197,8 @@ config SND_SOC_CV1835_LT9611
 	tristate "Support for the lt9611 card"
 	help
 	  lt9611 codec enable.
+
+config SND_SOC_CV1835_MAX98357A
+	tristate "Support for the max98357a card"
+	help
+	  max98357a codec enable.

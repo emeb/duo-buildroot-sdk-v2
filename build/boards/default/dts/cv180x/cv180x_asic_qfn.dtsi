@@ -52,10 +52,10 @@
 
 / {
 	/delete-node/ wifi-sd@4320000;
-	/delete-node/ i2s@04110000;
+/*	/delete-node/ i2s@04110000;
 	/delete-node/ sound_ext1;
 	/delete-node/ sound_ext2;
-	/delete-node/ sound_PDM;
+	/delete-node/ sound_PDM;*/
 
 	wifi_pin {
 		compatible = "cvitek,wifi-pin";
