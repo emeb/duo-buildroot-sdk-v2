@@ -41,8 +41,6 @@
        clock-frequency = <100000>;
 };
 
-// Below adds MAX98357A I2S speaker driver
-
 &i2s2 {
 	status = "okay";
 	#sound-dai-cells = <0>;
@@ -60,16 +58,8 @@
 		#sound-dai-cells = <0>;
 		compatible = "maxim,max98357a";
 		status = "okay";
-		/*sdmode-gpios = <&gpio1 14 0>;*/ 
-		/* max98357a has gain & sd_mode gpio. but codec driver just has sdmode */
 	};
 
-//	ak4553: ak4554 {
-//		#sound-dai-cells = <0>;
-//		compatible = "asahi-kasei,ak4554";
-//		status = "okay";
-//	};
-	
 	wm8782: wm8782 {
 		#sound-dai-cells = <0>;
 		compatible = "wlf,wm8782";
@@ -81,11 +71,6 @@
 		compatible = "cvitek,cv1835-max98357a";
 		cvi,card_name = "cv1835_max98357a";
 	};
-
-//	sound {
-//		compatible = "cvitek,cv1835-ak4554";
-//		cvi,card_name = "cv1835_ak4554";
-//	};
 
 	/* sound_extin use external adc */
 	sound_extin {

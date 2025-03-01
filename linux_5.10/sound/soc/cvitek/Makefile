@@ -83,8 +83,5 @@ obj-$(CONFIG_SND_SOC_CV1835_LT9611) += cv1835_lt9611.o
 # extend speaker
 obj-$(CONFIG_SND_SOC_CV1835_MAX98357A) += cv1835_max98357a.o
 
-# simple codec
-obj-$(CONFIG_SND_SOC_CV1835_AK4554) += cv1835_ak4554.o
-
-# simple adc
+# external line-level adc
 obj-$(CONFIG_SND_SOC_CV1835_WM8782) += cv1835_wm8782.o

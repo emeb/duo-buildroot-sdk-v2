@@ -17,13 +17,8 @@
 #include <linux/io.h>
 #include <linux/proc_fs.h>
 
-// // u16 tdm_slot_no = 2;
-
 struct card_private {
 	int tmp;	//save sth.
-	// struct snd_soc_jack headset;
-	// struct list_head hdmi_pcm_list;
-	// struct snd_soc_jack hdmi[3];
 };
 
 enum {
@@ -46,26 +41,6 @@ static int cv1835_max98357a_hw_params(struct snd_pcm_substream *substream,
 
 static int cv1835_max98357a_asoc_init(struct snd_soc_pcm_runtime *rtd)
 {
-	// dual with private data
-
-
-	// struct snd_soc_dai *cpu_dai = rtd->cpu_dai;
-	// struct snd_soc_dai *codec_dai = rtd->codec_dai;
-	// u32 ret;
-
-	// /* Only need to set slot number while mode is TDM/PDM, otherwise default slot number is 2 */
-	// if (tdm_slot_no != 2) {
-	// 	ret = snd_soc_dai_set_tdm_slot(codec_dai, 0x0F, 0x0F, tdm_slot_no, 32);
-
-	// 	if (ret < 0)
-	// 		return ret;
-
-	// 	ret = snd_soc_dai_set_tdm_slot(cpu_dai, 0x0F, 0x0F, tdm_slot_no, 32);
-
-	// 	if (ret < 0)
-	// 		return ret;
-	// }
-
 	return 0;
 }
 
@@ -98,24 +73,16 @@ static struct snd_soc_card cv1835_max98357a = {
 	.dai_link = cv1835_max98357a_dai,
 	.num_links = ARRAY_SIZE(cv1835_max98357a_dai),
 
-	// control may don't have
-	// .controls = skylake_controls,
-	// .num_controls = ARRAY_SIZE(skylake_controls),
-
 	.dapm_widgets		= cv1835_max98357a_dapm_widgets,
 	.num_dapm_widgets	= ARRAY_SIZE(cv1835_max98357a_dapm_widgets),
 
 	.dapm_routes		= cv1835_max98357a_dapm_routes,
 	.num_dapm_routes	= ARRAY_SIZE(cv1835_max98357a_dapm_routes),
-
-	// .fully_routed = true,
-	// .late_probe = skylake_card_late_probe,
 };
 
 static const struct of_device_id cvi_audio_match_ids[] = {
 	{
 		.compatible = "cvitek,cv1835-max98357a",
-		//.data = (void *) &cv1835_max98357a_dai,
 	},
 	{},
 };
@@ -124,13 +91,10 @@ MODULE_DEVICE_TABLE(of, cvi_audio_match_ids);
 
 static int cv1835_max98357a_probe(struct platform_device *pdev)
 {
-	struct device_node *np = pdev->dev.of_node;
 	struct snd_soc_card *card = &cv1835_max98357a;
 
 	struct card_private *ctx;		// create private data for card
 	int ret;
-
-	// struct device_node *np = pdev->dev.of_node, *dai;
 
 	dev_info(&pdev->dev, "%s, dev name=%s\n", __func__, dev_name(&pdev->dev));
 

@@ -17,13 +17,8 @@
 #include <linux/io.h>
 #include <linux/proc_fs.h>
 
-// // u16 tdm_slot_no = 2;
-
 struct card_private {
-	int tmp;	//save sth.
-	// struct snd_soc_jack headset;
-	// struct list_head hdmi_pcm_list;
-	// struct snd_soc_jack hdmi[3];
+	int tmp;
 };
 
 enum {
@@ -96,7 +91,6 @@ MODULE_DEVICE_TABLE(of, cvi_audio_match_ids);
 
 static int cv1835_wm8782_probe(struct platform_device *pdev)
 {
-	struct device_node *np = pdev->dev.of_node;
 	struct snd_soc_card *card = &cv1835_wm8782;
 
 	struct card_private *ctx;		// create private data for card

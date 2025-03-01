@@ -203,11 +203,6 @@ config SND_SOC_CV1835_MAX98357A
 	help
 	  max98357a codec enable.
 
-config SND_SOC_CV1835_AK4554
-	tristate "Support for the ak4554 codec"
-	help
-	  ak4554 codec enable.
-
 config SND_SOC_CV1835_WM8782
 	tristate "Support for the wm8782 adc"
 	help
