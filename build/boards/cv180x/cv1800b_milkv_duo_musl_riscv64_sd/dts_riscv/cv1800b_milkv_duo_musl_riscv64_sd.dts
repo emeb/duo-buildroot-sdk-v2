@@ -55,7 +55,7 @@
 
 
 / {
-	/* codec */
+	/* codecs */
 	max98357a: max98357a {
 		#sound-dai-cells = <0>;
 		compatible = "maxim,max98357a";
@@ -64,10 +64,33 @@
 		/* max98357a has gain & sd_mode gpio. but codec driver just has sdmode */
 	};
 
-	/* sound_ext3 use external codec */
-	sound {
+//	ak4553: ak4554 {
+//		#sound-dai-cells = <0>;
+//		compatible = "asahi-kasei,ak4554";
+//		status = "okay";
+//	};
+	
+	wm8782: wm8782 {
+		#sound-dai-cells = <0>;
+		compatible = "wlf,wm8782";
+		status = "okay";
+	};
+
+	/* sound_extout use external dac */
+	sound_extout {
 		compatible = "cvitek,cv1835-max98357a";
 		cvi,card_name = "cv1835_max98357a";
+	};
+
+//	sound {
+//		compatible = "cvitek,cv1835-ak4554";
+//		cvi,card_name = "cv1835_ak4554";
+//	};
+
+	/* sound_extin use external adc */
+	sound_extin {
+		compatible = "cvitek,cv1835-wm8782";
+		cvi,card_name = "cv1835_wm8782";
 	};
 
 };
