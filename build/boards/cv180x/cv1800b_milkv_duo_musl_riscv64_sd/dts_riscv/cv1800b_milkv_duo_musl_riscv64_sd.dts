@@ -72,21 +72,21 @@
 	//	cvi,card_name = "cv1835_max98357a";
 	//};
 
-	sound_extout {
-		compatible = "simple-audio-card";
-		simple-audio-card,name = "Simple-Card MAX98357a";
-		simple-audio-card,format = "i2s";
-		simple-audio-card,widgets =
-			"Speaker Out", "SPKR";
-		simple-audio-card,routing =
-			"Speaker", "SPKR";
-		simple-audio-card,cpu {
-			sound-dai = <&i2s2 0>;
-		};
-		simple-audio-card,codec {
-			sound-dai = <&max98357a>;
-		};
-	};
+	//sound_extout {
+	//	compatible = "simple-audio-card";
+	//	simple-audio-card,name = "Simple-Card MAX98357a";
+	//	simple-audio-card,format = "i2s";
+	//	simple-audio-card,widgets =
+	//		"Speaker Out", "SPKR";
+	//	simple-audio-card,routing =
+	//		"Speaker", "SPKR";
+	//	simple-audio-card,cpu {
+	//		sound-dai = <&i2s2 0>;
+	//	};
+	//	simple-audio-card,codec {
+	//		sound-dai = <&max98357a>;
+	//	};
+	//};
 
 	/* sound_extin use external adc */
 	//sound_extin {
@@ -94,20 +94,44 @@
 	//	cvi,card_name = "cv1835_wm8782";
 	//};
 
-	sound_extin {
+	//sound_extin {
+	//	compatible = "simple-audio-card";
+	//	simple-audio-card,name = "Simple-Card WM8782";
+	//	simple-audio-card,format = "i2s";
+	//	simple-audio-card,widgets =
+	//		"Line In", "Line";
+	//	simple-audio-card,routing =
+	//		"Capture", "Line";
+	//	simple-audio-card,cpu {
+	//		sound-dai = <&i2s1 0>;
+	//	};
+	//	simple-audio-card,codec {
+	//		sound-dai = <&wm8782>;
+	//	};
+	//};
+
+	sound_ext {
 		compatible = "simple-audio-card";
-		simple-audio-card,name = "Simple-Card WM8782";
-		simple-audio-card,format = "i2s";
-		simple-audio-card,widgets =
-			"Line In", "Line";
-		simple-audio-card,routing =
-			"Capture", "Line";
-		simple-audio-card,cpu {
-			sound-dai = <&i2s1 0>;
+		simple-audio-card,name = "Simple-Card External I2S";
+		
+		simple-audio-card,dai-link@0 {		/* I2S - Output */
+			format = "i2s";
+			cpu {
+				sound-dai = <&i2s2 0>;
+			};
+			codec {
+				sound-dai = <&max98357a>;
+			};
 		};
-		simple-audio-card,codec {
-			sound-dai = <&wm8782>;
+		
+		simple-audio-card,dai-link@1 {		/* I2S - Input */
+			format = "i2s";
+			cpu {
+				sound-dai = <&i2s1 0>;
+			};
+			codec {
+				sound-dai = <&wm8782>;
+			};
 		};
 	};
-
 };
