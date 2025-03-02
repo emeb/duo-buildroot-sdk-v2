@@ -67,15 +67,47 @@
 	};
 
 	/* sound_extout use external dac */
+	//sound_extout {
+	//	compatible = "cvitek,cv1835-max98357a";
+	//	cvi,card_name = "cv1835_max98357a";
+	//};
+
 	sound_extout {
-		compatible = "cvitek,cv1835-max98357a";
-		cvi,card_name = "cv1835_max98357a";
+		compatible = "simple-audio-card";
+		simple-audio-card,name = "Simple-Card MAX98357a";
+		simple-audio-card,format = "i2s";
+		simple-audio-card,widgets =
+			"Speaker Out", "SPKR";
+		simple-audio-card,routing =
+			"Speaker", "SPKR";
+		simple-audio-card,cpu {
+			sound-dai = <&i2s2 0>;
+		};
+		simple-audio-card,codec {
+			sound-dai = <&max98357a>;
+		};
 	};
 
 	/* sound_extin use external adc */
+	//sound_extin {
+	//	compatible = "cvitek,cv1835-wm8782";
+	//	cvi,card_name = "cv1835_wm8782";
+	//};
+
 	sound_extin {
-		compatible = "cvitek,cv1835-wm8782";
-		cvi,card_name = "cv1835_wm8782";
+		compatible = "simple-audio-card";
+		simple-audio-card,name = "Simple-Card WM8782";
+		simple-audio-card,format = "i2s";
+		simple-audio-card,widgets =
+			"Line In", "Line";
+		simple-audio-card,routing =
+			"Capture", "Line";
+		simple-audio-card,cpu {
+			sound-dai = <&i2s1 0>;
+		};
+		simple-audio-card,codec {
+			sound-dai = <&wm8782>;
+		};
 	};
 
 };
