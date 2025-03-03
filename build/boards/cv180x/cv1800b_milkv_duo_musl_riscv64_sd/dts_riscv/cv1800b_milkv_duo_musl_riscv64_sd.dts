@@ -54,128 +54,13 @@
 
 / {
 	///////////////////////////////////////////////////////////////////////////
-	// Various approaches to I/O linkage drivers for half-duplex converters
-	// these work full duplex but rx doesn't drive clocks and records no data.
-	///////////////////////////////////////////////////////////////////////////
-	//max98357a: max98357a {
-	//	#sound-dai-cells = <0>;
-	//	compatible = "maxim,max98357a";
-	//	status = "okay";
-	//};
-
-	//wm8782: wm8782 {
-	//	#sound-dai-cells = <0>;
-	//	compatible = "wlf,wm8782";
-	//	status = "okay";
-	//};
-	
-	// use the specific linkage driver for MAX98357a
-	//sound_extout {
-	//	compatible = "cvitek,cv1835-max98357a";
-	//	cvi,card_name = "cv1835_max98357a";
-	//};
-	
-	// use the generic simple-audio-card driver. widgets & routes prolly not needed
-	//sound_extout {
-	//	compatible = "simple-audio-card";
-	//	simple-audio-card,name = "Simple-Card MAX98357a";
-	//	simple-audio-card,format = "i2s";
-	//	simple-audio-card,widgets =
-	//		"Speaker Out", "SPKR";
-	//	simple-audio-card,routing =
-	//		"Speaker", "SPKR";
-	//	simple-audio-card,cpu {
-	//		sound-dai = <&i2s2 0>;
-	//	};
-	//	simple-audio-card,codec {
-	//		sound-dai = <&max98357a>;
-	//	};
-	//};
-
-	// use the specific linkage driver for WM8782
-	//sound_extin {
-	//	compatible = "cvitek,cv1835-wm8782";
-	//	cvi,card_name = "cv1835_wm8782";
-	//};
-	
-	// use the generic simple-audio-card driver. widgets & routes prolly not needed
-	//sound_extin {
-	//	compatible = "simple-audio-card";
-	//	simple-audio-card,name = "Simple-Card WM8782";
-	//	simple-audio-card,format = "i2s";
-	//	simple-audio-card,widgets =
-	//		"Line In", "Line";
-	//	simple-audio-card,routing =
-	//		"Capture", "Line";
-	//	simple-audio-card,cpu {
-	//		sound-dai = <&i2s1 0>;
-	//	};
-	//	simple-audio-card,codec {
-	//		sound-dai = <&wm8782>;
-	//	};
-	//};
-
-	// combine both in and out with generic simple-audio-card driver.
-	//sound_ext {
-	//	compatible = "simple-audio-card";
-	//	simple-audio-card,name = "Simple-Card External I2S";
-	//	
-	//	simple-audio-card,dai-link@0 {		/* I2S - Output */
-	//		format = "i2s";
-	//		cpu {
-	//			sound-dai = <&i2s2 0>;
-	//		};
-	//		codec {
-	//			sound-dai = <&max98357a>;
-	//		};
-	//	};
-	//	
-	//	simple-audio-card,dai-link@1 {		/* I2S - Input */
-	//		format = "i2s";
-	//		cpu {
-	//			sound-dai = <&i2s1 0>;
-	//		};
-	//		codec {
-	//			sound-dai = <&wm8782>;
-	//		};
-	//	};
-	//};
-	
-	///////////////////////////////////////////////////////////////////////////
-	// I/O driver for true codec w/o control chl
-	// this doesn't work full duplex. rx will drive clocks but records no data.
-	///////////////////////////////////////////////////////////////////////////
-	//ak4554: ak4554 {
-	//	#sound-dai-cells = <0>;
-	//	compatible = "asahi-kasei,ak4554";
-	//	status = "okay";
-	//};
-
-	//sound_ext {
-	//	compatible = "simple-audio-card";
-	//	simple-audio-card,name = "Simple-Card AK4554";
-	//	simple-audio-card,format = "i2s";
-	//	simple-audio-card,cpu {
-	//		sound-dai = <&i2s2>;
-	//	};
-	//	simple-audio-card,codec {
-	//		sound-dai = <&ak4554>;
-	//	};
-	//};
-
-	///////////////////////////////////////////////////////////////////////////
-	// try approach from RPi forums w/ generic SPDIF codec drivers
-	// 
+	// Use spdif as generic I2S and I2S2 & I2S1 in master TX/slave RX setup
+	// for concurrent operation. Note that RX-only will not work.
 	///////////////////////////////////////////////////////////////////////////
 	codec_out: spdif-transmitter {
 		#address-cells = <0>;
 		#size-cells = <0>;
 		#sound-dai-cells = <0>;
-		/* 
-			"linux,spdif-dit" is used in generic I2S(transmitter) driver.                     
-			You can see details "linux,spdif-dit" by bellow command
-			modinfo snd_soc_spdif_tx
-		*/
 		compatible = "linux,spdif-dit";
 		status = "okay";
 	};
@@ -184,11 +69,6 @@
 		#address-cells = <0>;
 		#size-cells = <0>;
 		#sound-dai-cells = <0>;
-		/* 
-			"linux,spdif-dir" is used in generic I2S(receiver) driver.                     
-			You can see details "linux,spdif-dir" by bellow command
-			modinfo snd_soc_spdif_rx
-		*/
 		compatible = "linux,spdif-dir";
 		status = "okay";
 	};
