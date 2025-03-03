@@ -63,4 +63,15 @@
 	Using spdif for codecs works. Play and Record cards are listed as separate
 	devices on same card. Play works but record or full duplex test fails with
 	I/O errors.
+
+16) milkv-duo-musl-riscv64-sd_2025-0303-1239.img
+	same, with attempted i2s_subsys debug enable. Didn't do anything.
+
+17)	milkv-duo-musl-riscv64-sd_2025-0303-1259.img
+	same, with additional dev_info in subsys probe fn.
+	probe runs very early in bootup and does set concurrent mux.
+
+18) milkv-duo-musl-riscv64-sd_2025-0303-1415.img
+	Modify i2s_subsys concurrent settings to point at I2S2 pins with I2S2 as
+	master.
 	

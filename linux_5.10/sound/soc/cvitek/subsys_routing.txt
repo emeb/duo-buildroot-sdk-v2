@@ -1,0 +1,72 @@
+CV1835_i2s_subsys_probe() in concurrent mode sets up the mux routing as follows:
+
+	writel(0x7114, dev->subsys_base + SCLK_IN_SEL);
+	4 -> i2s0 from AADC BCLK output
+	1 -> i2s1 from PDM BCLK output
+	1 -> i2s2 from i2s1 BCLK output
+	7 -> i2s3 from i2s3 BCLK input
+	writel(0x7114, dev->subsys_base + FS_IN_SEL);
+	4 -> i2s0 from AADC FSCK
+	1 -> i2s1 from PDM FSCK
+	1 -> i2s2 from i2s1 FSCK output
+	7 -> i2s3 from i2s3 FSCK input
+	writel(0x7554, dev->subsys_base + SDI_IN_SEL);
+	4 -> i2s0 from AADC SDI
+	5 -> i2s1 from i2s1 SDI input
+	5 -> i2s2 from i2s1 SDI input
+	7 -> i2s3 from i2s3 SDI input
+	writel(0x7664, dev->subsys_base + SDO_OUT_SEL);
+	4 -> i2s0 [only 4 allowed]
+	6 -> i2s2 SDO to i2s1 out
+	6 -> i2s2 SDO to i2s2 out
+	7 -> i2s3 [only 7 allowed]
+	writel(0x0000, dev->subsys_base + MULTI_SYNC);
+	undocumented
+	writel(0x0000, dev->subsys_base + BCLK_OEN_SEL);
+	i2s1 & i2s2 BCLK output enables internally controlled
+	
+So, what does this mean?
+
+* I2S1 slave clocks from PDM outs, SDI from I2S1 pin, SDO goes nowhere
+* I2S2 slave clocks from I2S1 outs, SDI from I2S1 pin, SDO goes to I2S2 pin
+
+This prioritizes the I2S1 GPIO pins for concurrent operation.
+
+Does this explain behavior seen?
+* I2S1 master: clocks go to I2S1, SDI comes from I2S1, data goes to I2S2
+* I2S2 master: clocks go to I2S2, SDI comes from I2S1, data goes to I2S2
+
+Yes - I2S2 as output, clocks & SDO show up on I2S2 pins, I2S1 as input doesn't
+see I2S2 SDI data and as slave doesn't see I2S2 clocks.
+
+But - is this probe fn ever even called? Yes - early on in boot process and
+concurrent settings are used thereafter.
+
+What should they be to allow I2S2 to be prioritized?
+
+* I2S1 slave clocks from I2S2 outs, SDI from I2S2 pin, SDO goes nowhere
+* I2S2 slave clocks from I2S1 outs, SDI from I2S2 pin, SDO goes to I2S2 pin
+
+	writel(0x7114, dev->subsys_base + SCLK_IN_SEL);
+	4 -> i2s0 from AADC BCLK output
+	2 -> i2s1 from i2s2 BCLK output
+	1 -> i2s2 from i2s1 BCLK output
+	7 -> i2s3 from i2s3 BCLK input
+	writel(0x7114, dev->subsys_base + FS_IN_SEL);
+	4 -> i2s0 from AADC FSCK
+	2 -> i2s1 from i2s2 FSCK output
+	1 -> i2s2 from i2s1 FSCK output
+	7 -> i2s3 from i2s3 FSCK input
+	writel(0x7664, dev->subsys_base + SDI_IN_SEL);
+	4 -> i2s0 from AADC SDI
+	6 -> i2s1 from i2s2 SDI input
+	6 -> i2s2 from i2s2 SDI input
+	7 -> i2s3 from i2s3 SDI input
+	writel(0x7664, dev->subsys_base + SDO_OUT_SEL);
+	4 -> i2s0 [only 4 allowed]
+	6 -> i2s1 SDO to i2s2
+	6 -> i2s2 SDO to i2s2
+	7 -> i2s3 [only 7 allowed]
+
+This allows either I2S1 or I2S2 ro be master on the I2S2 output pins with the
+other being slave. I2S1 is always input and I2S2 is always output.

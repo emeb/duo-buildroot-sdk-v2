@@ -202,7 +202,7 @@
 		capture_link: simple-audio-card,dai-link@0 {
 			format = "i2s";
 
-			// Set as I2S slave
+			// Set I2S1 as slave to I2S2
 			bitclock-master = <&r_codec_dai>;
 			frame-master = <&r_codec_dai>;
 
@@ -218,7 +218,7 @@
 		playback_link: simple-audio-card,dai-link@1 {
 			format = "i2s";
 
-			// Set as I2S master
+			// Set I2S2 as master
 			bitclock-master = <&p_cpu_dai>;
 			frame-master = <&p_cpu_dai>;
 
