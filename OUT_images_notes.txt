@@ -1,0 +1,66 @@
+1) milkv-duo-musl-riscv64-sd_2025-0222-1403.img
+	Initial test build for SDK V2 w/o modifications
+
+2) milkv-duo-musl-riscv64-sd_2025-0225-1148.img
+	Build w/ MAX98357a I2S output driver working
+
+3) milkv-duo-musl-riscv64-sd_2025-0228-1253.img
+	1st attempt at AK4554 driver - didn't build CV1835_AK4554 due to Kconfig typo
+	
+4) milkv-duo-musl-riscv64-sd_2025-0228-1412.img
+	2nd attempt at AK4554 - loads baut fails at probe
+[    1.037144] cv1835-ak4554 sound: cv1835_ak4554_probe, dev name=sound
+[    1.043858] cv1835-ak4554: probe of sound failed with error -22
+
+5) milkv-duo-musl-riscv64-sd_2025-0301-0308.img
+	revert to MAX98357a but try changing sound -> sound_extout in dts
+	works but left out info msg in probe fn. changing name in dts didn't kill it.
+	
+6) milkv-duo-musl-riscv64-sd_2025-0301-0434.img
+	added info to probe, sound_extout as name works
+	
+7) milkv-duo-musl-riscv64-sd_2025-0301-0723.img
+	added wm8782 adc driver, forgot to update cvitek makefile for cv1835_wm8782.c
+
+8) milkv-duo-musl-riscv64-sd_2025-0301-0735.img
+	fixed cvitek makefile. loads but fails at probe
+[    1.055390] cv1835-wm8782 sound_extin: cv1835_wm8782_probe, dev name=sound_extin
+[    1.063320] cv1835-wm8782 sound_extin: ASoC: CODEC DAI HiFi not registered
+[    1.077392] cv1835-wm8782 sound_extin: snd_soc_register_card failed (-517)
+
+9) milkv-duo-musl-riscv64-sd_2025-0301-0804.img
+	change codec dai name to match wm8782.c struct. Seems to work!!
+	checked in to git. play activates I2S GPIO pins, record does not.
+	
+10) milkv-duo-musl-riscv64-sd_2025-0301-1215.img
+	cleaned out remnants of 3) & 4) and clean up C code for MAX98357a and WM8782.
+	works. Checked in to git.  play activates I2S GPIO pins, record does not.
+
+11) milkv-duo-musl-riscv64-sd_2025-0302-2333.img
+	try simple-card for input. fails due to missing i2s format.
+
+12) milkv-duo-musl-riscv64-sd_2025-0302-2355.img
+	fixed i2s format in DT. simple-card input source appears.
+	record runs but does not activate I2S GPIO pins
+
+13) milkv-duo-musl-riscv64-sd_2025-0303-0022.img
+	try simple-card for output too. simple-card output dest appears.
+	play works - clocks & data run.
+	record runs but no clocks and saves only zero data.
+	GUESS - I2S2 is driving pins but I2S1 input pin not routed correctly. 
+
+14) milkv-duo-musl-riscv64-sd_2025-0303-0446.img
+	try simple-card with AK4554 tx/rx codec w/o control bus.
+	play works - clocks & data run.
+	record appears to drive clocks but only saves zero data even when SDI toggles.
+	fulldup fails w/ IO error.
+	GUESS - need to use both I2S1 and I2S2, but simple-card doesn't seem to
+	provide a way to link them.
+
+15) milkv-duo-musl-riscv64-sd_2025-0303-0935.img
+	Try a whole new approach with DT from RPi forum that sets i2s2 to slave
+	mode and uses spdif tx/rx as codecs for generic I2S I/O.
+	Using spdif for codecs works. Play and Record cards are listed as separate
+	devices on same card. Play works but record or full duplex test fails with
+	I/O errors.
+	
