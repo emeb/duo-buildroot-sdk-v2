@@ -206,6 +206,29 @@ static void cv180x_ephy_led_pinmux(void)
 }
 #endif
 
+// EMEB - mostly copypasta from dnech
+static void cv180x_i2s2_init(void)
+{
+	printk("cv180x_i2s2_init\n");
+	mmio_write_32(0x03009804, 0x0001);
+	mmio_write_32(0x03009808, 0x0001);
+	mmio_write_32(0x03009800, 0x0905);
+
+	// Wait PLL_Lock, Lock_Status p5.0x12@[15] = 1
+//	mdelay(1);
+
+	mmio_write_32(0x0300907C, 0x0500);
+	mmio_write_32(0x03009078, 0x0F00);
+	mmio_write_32(0x03009074, 0x0606);
+	mmio_write_32(0x03009070, 0x0606);
+	
+	// also add GPIO pinmux setup for I2S - needed in SDK V2
+	mmio_write_32(0x030010c0, 0x7);
+	mmio_write_32(0x030010c4, 0x7);
+	mmio_write_32(0x030010c8, 0x7);
+	mmio_write_32(0x030010cc, 0x7);
+}
+
 int board_init(void)
 {
 	extern uint32_t BOOT0_START_TIME;
@@ -218,7 +241,10 @@ int board_init(void)
 	cv180x_ephy_id_init();
 	cv180x_ephy_led_pinmux();
 #endif
-
+	
+	// setup I2S2 on ethernet pins
+	cv180x_i2s2_init();
+	
 #if defined(CONFIG_NAND_SUPPORT)
 	pinmux_config(PINMUX_SPI_NAND);
 #elif defined(CONFIG_SPI_FLASH)
