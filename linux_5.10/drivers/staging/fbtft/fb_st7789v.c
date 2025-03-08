@@ -80,6 +80,8 @@ enum st7789v_command {
  *
  * Return: 0 on success, < 0 if error occurred.
  */
+#if 0
+// original ST7789
 static int init_display(struct fbtft_par *par)
 {
 	/* turn off sleep mode */
@@ -144,6 +146,51 @@ static int init_display(struct fbtft_par *par)
 
 	return 0;
 }
+#else
+// new st7735
+static int init_display(struct fbtft_par *par)
+{
+	par->fbtftops.reset(par);//硬复位
+
+	mdelay(50);
+	write_reg(par,0x11);//软复位
+	mdelay(100);
+	//下面添加初始化函数write_reg 参数分别为：结构体指针，写命令，写数据....(后都为数据)
+	//ST7735s Frame Rate
+	write_reg(par,0xB1,0x05,0x3c,0x3c); 
+
+	write_reg(par,0xB2,0x05,0x3c,0x3c);  
+
+	write_reg(par,0xB3,0x05,0x3c,0x3c,0x05,0x3c,0x3c); 
+ 
+	
+	write_reg(par,0xB4,0x03); //Column inversion 
+	
+	//ST7735s Power Sequence
+	write_reg(par,0xC0,0x28,0x08,0x04); 
+
+	write_reg(par,0xC1,0xc0); 
+
+	write_reg(par,0xC2,0x0d,0x00); 
+	
+	write_reg(par,0xC3,0x8d,0x2a); //VCOM 
+	
+	write_reg(par,0xc4,0x8d,0xee); //MX, MY, RGB mode  
+	write_reg(par,0xc5,0x1a);
+	write_reg(par,0x36,0xc0);
+	//ST7735s Gamma Sequence
+	write_reg(par,0xe0,0x04,0x22,0x07,0x0a,0x2e,0x30,0x25,0x2a,0x28,0x26,0x2e,0x3a,0x00,0x01,0x03,0x13); 
+
+	write_reg(par,0xe1,0x04,0x16,0x06,0x0d,0x2d,0x26,0x23,0x27,0x27,0x25,0x2d,0x3b,0x00,0x01,0x04,0x13);  
+	
+	write_reg(par,0x3A,0x05); //65k mode  
+	
+	write_reg(par,0x29);//Display on
+	mdelay(100);
+
+	return 0;
+}
+#endif
 
 /**
  * set_var() - apply LCD properties like rotation and BGR mode
@@ -191,6 +238,8 @@ static int set_var(struct fbtft_par *par)
  *
  * Return: 0 on success, < 0 if error occurred.
  */
+#if 0
+// original st7789
 static int set_gamma(struct fbtft_par *par, u32 *curves)
 {
 	int i;
@@ -232,6 +281,50 @@ static int set_gamma(struct fbtft_par *par, u32 *curves)
 	}
 	return 0;
 }
+#else
+// new st7735
+static int set_gamma(struct fbtft_par *par, u32 *curves)
+{
+	int i;
+	int j;
+	int c; /* curve index offset */
+
+	/*
+	 * Bitmasks for gamma curve command parameters.
+	 * The masks are the same for both positive and negative voltage
+	 * gamma curves.
+	 */
+	static const u8 gamma_par_mask[] = {
+		0xFF, /* V63[3:0], V0[3:0]*/
+		0x3F, /* V1[5:0] */
+		0x3F, /* V2[5:0] */
+		0x1F, /* V4[4:0] */
+		0x1F, /* V6[4:0] */
+		0x3F, /* J0[1:0], V13[3:0] */
+		0x7F, /* V20[6:0] */
+		0x77, /* V36[2:0], V27[2:0] */
+		0x7F, /* V43[6:0] */
+		0x3F, /* J1[1:0], V50[3:0] */
+		0x1F, /* V57[4:0] */
+		0x1F, /* V59[4:0] */
+		0x3F, /* V61[5:0] */
+		0x3F, /* V62[5:0] */
+	};
+
+	for (i = 0; i < par->gamma.num_curves; i++) {
+		c = i * par->gamma.num_values;
+		// for (j = 0; j < par->gamma.num_values; j++)
+		// 	curves[c + j] &= gamma_par_mask[j];
+		write_reg(par, PVGAMCTRL + i,
+			  curves[c + 0],  curves[c + 1],  curves[c + 2],
+			  curves[c + 3],  curves[c + 4],  curves[c + 5],
+			  curves[c + 6],  curves[c + 7],  curves[c + 8],
+			  curves[c + 9],  curves[c + 10], curves[c + 11],
+			  curves[c + 12], curves[c + 13]);
+	}
+	return 0;
+}
+#endif
 
 /**
  * blank() - blank the display
@@ -250,6 +343,8 @@ static int blank(struct fbtft_par *par, bool on)
 	return 0;
 }
 
+#if 0
+//original st7789
 static struct fbtft_display display = {
 	.regwidth = 8,
 	.width = 240,
@@ -264,7 +359,23 @@ static struct fbtft_display display = {
 		.blank = blank,
 	},
 };
-
+#else
+// new for st7735
+static struct fbtft_display display = {
+	.regwidth = 8,
+	.width = 128,//240,
+	.height = 160,//320,
+	.gamma_num = 2,
+	.gamma_len = 14,
+	.gamma = HSD20_IPS_GAMMA,
+	.fbtftops = {
+		.init_display = init_display,
+		.set_var = set_var,
+		.set_gamma = set_gamma,
+		.blank = blank,
+	},
+};
+#endif
 FBTFT_REGISTER_DRIVER(DRVNAME, "sitronix,st7789v", &display);
 
 MODULE_ALIAS("spi:" DRVNAME);
