@@ -80,7 +80,7 @@ enum st7789v_command {
  *
  * Return: 0 on success, < 0 if error occurred.
  */
-#if 0
+#if 1
 // original ST7789
 static int init_display(struct fbtft_par *par)
 {
@@ -238,7 +238,7 @@ static int set_var(struct fbtft_par *par)
  *
  * Return: 0 on success, < 0 if error occurred.
  */
-#if 0
+#if 1
 // original st7789
 static int set_gamma(struct fbtft_par *par, u32 *curves)
 {
@@ -343,7 +343,7 @@ static int blank(struct fbtft_par *par, bool on)
 	return 0;
 }
 
-#if 0
+#if 1
 //original st7789
 static struct fbtft_display display = {
 	.regwidth = 8,
