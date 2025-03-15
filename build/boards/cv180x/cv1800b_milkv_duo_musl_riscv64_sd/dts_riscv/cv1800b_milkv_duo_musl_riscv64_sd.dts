@@ -34,7 +34,7 @@
 		reset-gpios = <&porte 20 GPIO_ACTIVE_HIGH>; //RES
 		led-gpios = <&porte 26 GPIO_ACTIVE_HIGH>; //BL
 
-		debug = <0x0>;
+		debug = <0x1>;
 	};
 };
 
