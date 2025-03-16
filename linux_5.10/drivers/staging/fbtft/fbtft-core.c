@@ -222,8 +222,6 @@ static void fbtft_set_addr_win(struct fbtft_par *par, int xs, int ys, int xe,
 	write_reg(par, MIPI_DCS_WRITE_MEMORY_START);
 }
 
-#if 0
-// original reset function
 static void fbtft_reset(struct fbtft_par *par)
 {
 	if (!par->gpio.reset)
@@ -234,22 +232,7 @@ static void fbtft_reset(struct fbtft_par *par)
 	gpiod_set_value_cansleep(par->gpio.reset, 0);
 	msleep(120);
 }
-#else
-// new reset - ST7735 reset is active low.
-//作者：Leesans https://www.bilibili.com/read/cv9947785/ 出处：bilibili
-static void fbtft_reset(struct fbtft_par *par)
-{
-    if (!par->gpio.reset)
-        return;
-    fbtft_par_dbg(DEBUG_RESET, par, "%s()\n", __func__);
-    gpiod_set_value_cansleep(par->gpio.reset, 1);
-    msleep(10);
-    gpiod_set_value_cansleep(par->gpio.reset, 0);
-    msleep(200);
-    gpiod_set_value_cansleep(par->gpio.reset, 1);
-    msleep(10);
-}
-#endif
+
 static void fbtft_update_display(struct fbtft_par *par, unsigned int start_line,
 				 unsigned int end_line)
 {
@@ -833,6 +816,9 @@ int fbtft_register_framebuffer(struct fb_info *fb_info)
 			goto reg_fail;
 	}
 
+	// EMEB - call reset prior to init.
+	par->fbtftops.reset(par);
+	
 	ret = par->fbtftops.init_display(par);
 	if (ret < 0)
 		goto reg_fail;

@@ -31,10 +31,10 @@
 		buswidth = <8>;
 
 		dc-gpios = <&porte 19 GPIO_ACTIVE_HIGH>;	//DC
-		reset-gpios = <&porte 20 GPIO_ACTIVE_HIGH>; //RES
+		reset-gpios = <&porte 20 GPIO_ACTIVE_LOW>; //RES
 		led-gpios = <&porte 26 GPIO_ACTIVE_HIGH>; //BL
 
-		debug = <0x1>;
+		debug = <0x0>;
 	};
 };
 
