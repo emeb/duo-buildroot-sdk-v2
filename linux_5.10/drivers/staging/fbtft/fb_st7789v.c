@@ -264,6 +264,7 @@ static struct fbtft_display display = {
 		.blank = blank,
 	},
 };
+
 FBTFT_REGISTER_DRIVER(DRVNAME, "sitronix,st7789v", &display);
 
 MODULE_ALIAS("spi:" DRVNAME);

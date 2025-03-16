@@ -30,10 +30,6 @@
 #include "fbtft.h"
 #include "internal.h"
 
-// for new gpio linkages
-#include <linux/gpio.h>
-#include <linux/of_gpio.h>
-
 static unsigned long debug;
 module_param(debug, ulong, 0000);
 MODULE_PARM_DESC(debug, "override device debug level");
@@ -90,9 +86,8 @@ static int fbtft_request_one_gpio(struct fbtft_par *par,
 			"Failed to request %s GPIO: %d\n", name, ret);
 		return ret;
 	}
-	
 	fbtft_par_dbg(DEBUG_REQUEST_GPIOS, par, "%s: '%s' GPIO\n",
-			__func__, name);
+		      __func__, name);
 
 	return ret;
 }
