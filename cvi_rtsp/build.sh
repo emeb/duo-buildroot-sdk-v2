@@ -22,15 +22,7 @@ fi
 if [ "${LIVE555_DIR}" = "" ]; then
     mkdir -p prebuilt
 
-    REMOTE_URL=$(git remote -v | grep 'fetch' | awk '{print $2}')
-    ## Try to download from Github Server
-    if echo "$REMOTE_URL" | grep -q "github.com"; then
-        cp -rpf ${TOP_DIR}/oss/oss_release_tarball/${SDK_VER}/live555.tar.gz prebuilt/live555.tar.gz
-    else
-    ## Try to download from FTP Server
-        curl ftp://${FTP_SERVER_NAME}:${FTP_SERVER_PWD}@${FTP_SERVER_IP}/sw_rls/third_party/latest/${SDK_VER}/live555.tar.gz \
-        --output prebuilt/live555.tar.gz
-    fi
+    cp -rpf ${TOP_DIR}/oss/oss_release_tarball/${SDK_VER}/live555.tar.gz prebuilt/live555.tar.gz
     if [ $? != 0 ]; then
         echo "Failed to download live555."
         exit 1

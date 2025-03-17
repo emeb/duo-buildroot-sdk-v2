@@ -502,7 +502,7 @@ function build_pqtool_server()
 {(
   print_notice "Run ${FUNCNAME[0]}() function"
   cd "$PQTOOL_SERVER_PATH" || return
-  make all SDK_VER="$SDK_VER" MULTI_PROCESS_SUPPORT="$MULTI_PROCESS_SUPPORT"
+  make all SDK_VER="$SDK_VER" MULTI_PROCESS_SUPPORT="$MULTI_PROCESS_SUPPORT" || return "$?"
   test "$?" -ne 0 && print_notice "build pqtool_server failed !!" && popd && return 1
 
   if [[ "$FLASH_SIZE_SHRINK" != "y" ]]; then
@@ -615,7 +615,7 @@ function build_all()
       build_ivs_sdk || return $?
       build_tdl_sdk || return $?
     fi
-    #build_pqtool_server || return $?
+    build_pqtool_server || return $?
   fi
   pack_cfg || return $?
   pack_rootfs || return $?

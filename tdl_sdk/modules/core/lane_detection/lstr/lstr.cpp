@@ -53,9 +53,9 @@ float LSTR::gen_x_by_y(float ys, std::vector<float> &point_line) {
 }
 
 int LSTR::outputParser(cvtdl_lane_t *lane_meta) {
-  float *out_conf = getOutputRawPtr<float>(1);
-  float *out_feature = getOutputRawPtr<float>(0);
-  CVI_SHAPE output_shape = getOutputShape(0);
+  float *out_conf = getOutputRawPtr<float>(0);
+  float *out_feature = getOutputRawPtr<float>(1);
+  CVI_SHAPE output_shape = getOutputShape(1);
   std::vector<std::vector<float>> point_map;
   std::vector<float> lane_dis;
   //(5 lanes) * (1 conf + 2 (upper & lower) + 4 poly coeffs)
@@ -94,10 +94,10 @@ int LSTR::outputParser(cvtdl_lane_t *lane_meta) {
     }
   }
 
-  if(export_feature){
-    CVI_TDL_MemAllocInit(final_index.size(), lane_meta, 7*2 + 7*8);
-    memcpy(lane_meta->feature, out_feature, sizeof(float) * 7*8);
-    memcpy(lane_meta->feature + 7*8, out_conf, sizeof(float) * 7*2);
+  if (export_feature) {
+    CVI_TDL_MemAllocInit(final_index.size(), lane_meta, 7 * 2 + 7 * 8);
+    memcpy(lane_meta->feature, out_feature, sizeof(float) * 7 * 8);
+    memcpy(lane_meta->feature + 7 * 8, out_conf, sizeof(float) * 7 * 2);
   }
 
   if (final_index.size() > 0) {
