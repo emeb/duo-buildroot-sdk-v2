@@ -652,4 +652,31 @@ typedef struct {
   int8_t *int_logits;
 } cvtdl_depth_logits_t;
 
+typedef struct {
+  cvtdl_bbox_t crop_bbox;
+  float lap_dev_th;
+  float ai_cv_th;
+} OcclusionAlgParam;
+
+typedef struct {
+  cvtdl_bbox_t crop_bbox;
+  float occ_ratio_th;
+  float laplacian_th;
+  float sensitive_th;
+  float occ_score;
+  int occ_class;
+} cvtdl_occlusion_meta_t;
+
+typedef struct {
+  uint32_t image_width;
+  uint32_t image_height;
+  float fc_d;
+  float fc_min;
+  float beta;
+  float thres_mult;
+  float te;
+  int smooth_frames;
+  int smooth_type;
+} SmoothAlgParam;
+
 #endif
