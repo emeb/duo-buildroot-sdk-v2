@@ -51,4 +51,15 @@
         rotary-encoder,encoding = "gray";
         rotary-encoder,relative-axis;
     };
+	
+	gpio-keys {
+		compatible = "gpio-keys";
+		autorepeat;
+
+		up {
+			label = "GPIO Key ENC_PB";
+			linux,code = <103>;
+			gpios = <&porta 26 GPIO_ACTIVE_LOW>;
+		};
+	};
 };
