@@ -61,7 +61,6 @@
        clock-frequency = <100000>;
 };
 
-<<<<<<< HEAD
 &i2s2 {
 	status = "okay";
 	#sound-dai-cells = <0>;
