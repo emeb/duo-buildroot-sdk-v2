@@ -15,7 +15,9 @@
 &spi2 {
 	status = "okay";
 
-	// EMEB - updated to remove spidev and hook to ST7789 driver for FB use
+	/////////////////////////////////////////////////////
+	// remove spidev and hook to ST7789 driver for FB use
+	/////////////////////////////////////////////////////
     /delete-node/ spidev@0;
 
 	st7789v: st7789v@0{
@@ -59,6 +61,7 @@
        clock-frequency = <100000>;
 };
 
+<<<<<<< HEAD
 &i2s2 {
 	status = "okay";
 	#sound-dai-cells = <0>;
@@ -127,6 +130,29 @@
 			p_codec_dai: codec {
 				sound-dai = <&codec_out>;
 			};
+		};
+	};
+	
+	///////////////////////////////
+	// rotary encoder with button
+	///////////////////////////////
+    rotary@0 {
+        compatible = "rotary-encoder";
+        status = "okay";
+        gpios = <&porta 25 GPIO_ACTIVE_HIGH>, <&porta 22 GPIO_ACTIVE_HIGH>;
+        linux,axis = <0>; /* REL_X */
+        rotary-encoder,encoding = "gray";
+        rotary-encoder,relative-axis;
+    };
+	
+	gpio-keys {
+		compatible = "gpio-keys";
+		autorepeat;
+
+		up {
+			label = "GPIO Key ENC_PB";
+			linux,code = <103>;
+			gpios = <&porta 26 GPIO_ACTIVE_LOW>;
 		};
 	};
 };
