@@ -218,13 +218,23 @@ static int i2s_subsys_probe(struct platform_device *pdev)
 	writel(0x0000, dev->subsys_base + BCLK_OEN_SEL);
 
 #elif defined(CONFIG_SND_SOC_CV1835_CONCURRENT_I2S)
+#if 0
+	/* original mux settings use I2S1 pins */
 	writel(0x7114, dev->subsys_base + SCLK_IN_SEL);
 	writel(0x7114, dev->subsys_base + FS_IN_SEL);
 	writel(0x7554, dev->subsys_base + SDI_IN_SEL);
 	writel(0x7664, dev->subsys_base + SDO_OUT_SEL);
 	writel(0x0000, dev->subsys_base + MULTI_SYNC);
 	writel(0x0000, dev->subsys_base + BCLK_OEN_SEL);
-
+#else
+	/* EMEB - new mux settings use I2S2 pins */
+	writel(0x7124, dev->subsys_base + SCLK_IN_SEL);
+	writel(0x7124, dev->subsys_base + FS_IN_SEL);
+	writel(0x7664, dev->subsys_base + SDI_IN_SEL);
+	writel(0x7664, dev->subsys_base + SDO_OUT_SEL);
+	writel(0x0000, dev->subsys_base + MULTI_SYNC);
+	writel(0x0000, dev->subsys_base + BCLK_OEN_SEL);
+#endif
 #elif defined(CONFIG_SND_SOC_CV1835PDM)
 	writel(0x7614, dev->subsys_base + SCLK_IN_SEL);
 	writel(0x7214, dev->subsys_base + FS_IN_SEL);
