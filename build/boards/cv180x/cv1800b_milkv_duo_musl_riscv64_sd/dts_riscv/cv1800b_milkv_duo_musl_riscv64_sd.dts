@@ -15,8 +15,26 @@
 &spi2 {
 	status = "okay";
 
-	spidev@0 {
+	// EMEB - updated to remove spidev and hook to ST7789 driver for FB use
+    /delete-node/ spidev@0;
+
+	st7789v: st7789v@0{
+		compatible = "sitronix,st7789v";
+		reg = <0>;
 		status = "okay";
+		spi-max-frequency = <40000000>;
+		spi-cpol;
+		spi-cpha;
+		rotate = <90>;
+		fps = <30>;
+		rgb;
+		buswidth = <8>;
+
+		dc-gpios = <&porte 19 GPIO_ACTIVE_HIGH>;	//DC
+		reset-gpios = <&porte 20 GPIO_ACTIVE_LOW>; //RES
+		led-gpios = <&porte 26 GPIO_ACTIVE_HIGH>; //BL
+
+		debug = <0x0>;
 	};
 };
 

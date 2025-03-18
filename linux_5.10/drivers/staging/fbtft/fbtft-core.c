@@ -816,6 +816,9 @@ int fbtft_register_framebuffer(struct fb_info *fb_info)
 			goto reg_fail;
 	}
 
+	// EMEB - call reset prior to init.
+	par->fbtftops.reset(par);
+	
 	ret = par->fbtftops.init_display(par);
 	if (ret < 0)
 		goto reg_fail;
