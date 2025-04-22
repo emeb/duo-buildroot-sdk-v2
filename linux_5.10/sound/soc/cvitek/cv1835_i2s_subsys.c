@@ -55,11 +55,13 @@ void i2s_master_clk_switch_on(bool on)
 		return;
 
 	if (on) {
-		writel(clk_ctrl0 | 0x140, master_reg + I2S_CLK_CTRL0_REG);
+		//writel(clk_ctrl0 | 0x140, master_reg + I2S_CLK_CTRL0_REG);
+		writel(clk_ctrl0 | 0x1C0, master_reg + I2S_CLK_CTRL0_REG); // EMEB added MCLK out ena
 		writel(0x1, master_reg + I2S_LCRK_MASTER_REG);
 	} else {
 		writel(0x0, master_reg + I2S_LCRK_MASTER_REG);
-		writel(clk_ctrl0 & 0x0bf, master_reg + I2S_CLK_CTRL0_REG);
+		//writel(clk_ctrl0 & 0x0bf, master_reg + I2S_CLK_CTRL0_REG);
+		writel(clk_ctrl0 & 0x03f, master_reg + I2S_CLK_CTRL0_REG); // EMEB disable MCLK out
 	}
 
 }
