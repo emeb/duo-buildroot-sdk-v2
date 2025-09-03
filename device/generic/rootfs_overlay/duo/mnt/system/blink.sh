@@ -1,6 +1,8 @@
 #!/bin/sh
 
-LED_PIN=440
+#LED_PIN=440
+# changed to XGPIOC[3] - pkg pin 57 for dspod_cv1800b
+LED_PIN=419
 
 LED_GPIO=/sys/class/gpio/gpio${LED_PIN}
 

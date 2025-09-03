@@ -42,6 +42,9 @@ int cvi_board_init(void)
 	
 	// EMEB - configure AUX0 pin for IIS1_MCLK
 	PINMUX_CONFIG(AUX0, IIS1_MCLK);
+	
+	// EMEB - blink LED via GPIO
+	PINMUX_CONFIG(PAD_MIPIRX4P, XGPIOC_3);	// Duo pin 57
 
 	// SPI
 	PINMUX_CONFIG(SD1_CLK, SPI2_SCK);
