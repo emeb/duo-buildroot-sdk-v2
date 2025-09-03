@@ -141,6 +141,7 @@
         gpios = <&porta 25 GPIO_ACTIVE_HIGH>, <&porta 22 GPIO_ACTIVE_HIGH>;
         linux,axis = <0>; /* REL_X */
         rotary-encoder,encoding = "gray";
+        rotary-encoder,steps-per-period = <2>;	// needed for enc on dspod_module
         rotary-encoder,relative-axis;
     };
 	
