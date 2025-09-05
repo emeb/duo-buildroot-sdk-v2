@@ -5,6 +5,7 @@
 #include <linux/completion.h>
 #include <linux/wait.h>
 #include <linux/list.h>
+#include <linux/gpio/consumer.h>
 
 #define SARADC_CTRL		0x004	// control register
 #define SARADC_STATUS		0x008	// staus  register
@@ -50,6 +51,8 @@ struct cvi_saradc_device {
 	u32 saradc_trim;
 	u32 saradc_period_cycle;
 	u32 saradc_test_force;
+	struct gpio_desc *muxa;
+	struct gpio_desc *muxb;
 };
 
 #endif /* __CVI_SARADC_H__ */

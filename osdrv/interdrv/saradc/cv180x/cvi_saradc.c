@@ -48,6 +48,9 @@
 #define RTC_ADC_TRIM_MASK 0x0f000000
 #define RTC_ADC_TRIM_OFFSET 24
 
+#define MUXA_PIN 503
+#define MUXB_PIN 504
+
 struct class *saradc_class;
 static dev_t saradc_cdev_id;
 extern int64_t cvi_efuse_read_from_shadow(uint32_t addr);
@@ -187,12 +190,24 @@ ssize_t cvi_saradc_write(struct file *filp, const char *buff, size_t count, loff
 	struct cvi_saradc_device *ndev = filp->private_data;
 	uint32_t value;
 	unsigned long flags = 0;
-
+	int bit;
+	
 	if (copy_from_user(&flag, buff, 1))
 		return -EFAULT;
 
+#if 0
 	ndev->channel_index = flag - 0x30;
-
+#else
+	// mask off high bits - limit HW chl to 0-7 (only 1-6 are legal)
+	ndev->channel_index = flag & 0x7;
+	
+	// get bits 3,4 for external mux setting
+	bit = (flag & 0x08)>>3;
+	gpiod_set_value(ndev->muxa, bit);
+	bit = (flag & 0x10)>>4;
+	gpiod_set_value(ndev->muxb, bit);
+#endif
+	
 	spin_lock_irqsave(&ndev->close_lock, flags);
 
 	if (ndev->channel_index < ADC1 ||
@@ -442,7 +457,7 @@ static int cvi_saradc_probe(struct platform_device *pdev)
 	struct cvi_saradc_device *ndev;
 	struct resource *res;
 	int ret;
-
+	
 	pr_debug("cvi_saradc_probe start\n");
 
 	ndev = devm_kzalloc(&pdev->dev, sizeof(*ndev), GFP_KERNEL);
@@ -507,6 +522,35 @@ static int cvi_saradc_probe(struct platform_device *pdev)
 		dev_err(dev, "regsiter chrdev error\n");
 		return ret;
 	}
+	
+#if 1
+	/* get GPIO for external mux control */
+	ndev->muxa = gpio_to_desc(MUXA_PIN);
+	if(!ndev->muxa)
+	{
+		dev_err(dev, "failed to get MUX A gpio\n");
+		return -ENODEV;
+	}
+	ret = gpiod_direction_output(ndev->muxa, 0);
+	if(ret)
+	{
+		dev_err(dev, "failed to set MUX A to output\n");
+		return ret;
+	}
+	
+	ndev->muxb = gpio_to_desc(MUXB_PIN);
+	if(!ndev->muxb)
+	{
+		dev_err(dev, "failed to get MUX B gpio\n");
+		return -ENODEV;
+	}
+	ret = gpiod_direction_output(ndev->muxb, 0);
+	if(ret)
+	{
+		dev_err(dev, "failed to set MUX B to output\n");
+		return ret;
+	}
+#endif
 
 	platform_set_drvdata(pdev, ndev);
 	pr_debug("cvi_saradc_probe end\n");
@@ -518,7 +562,12 @@ static int cvi_saradc_remove(struct platform_device *pdev)
 	struct cvi_saradc_device *ndev = platform_get_drvdata(pdev);
 
 	device_destroy(saradc_class, saradc_cdev_id);
-
+	
+#if 1
+	gpiod_put(ndev->muxb);
+	gpiod_put(ndev->muxa);
+#endif
+	
 	cdev_del(&ndev->cdev);
 
 	unregister_chrdev_region(saradc_cdev_id, 1);
