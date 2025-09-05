@@ -127,11 +127,18 @@ ssize_t cvi_saradc_read(struct file *filp, char *buff, size_t count, loff_t *off
 	uint32_t value;
 	uint32_t adc_value;
 	unsigned long flags = 0;
-
+	uint32_t timeout = 100;
+	uint16_t outval;
+	ssize_t len = 2;
+	
 	if (!ndev->saradc_vaddr) {
 		pr_err("Please write channel before read value\n");
 		return -1;
 	}
+	
+	// we always read one value and return it as 2-bytes, else don't do anything
+	if (count < 2)
+		return 0;
 
 	spin_lock_irqsave(&ndev->close_lock, flags);
 
@@ -147,15 +154,32 @@ ssize_t cvi_saradc_read(struct file *filp, char *buff, size_t count, loff_t *off
 	pr_debug("cvi_saradc_read: SARADC_CTRL = %#X\n", value);
 
 	// Check busy status
-	while (readl(ndev->saradc_vaddr + SARADC_STATUS) & 0x1)
-		;
+	while((readl(ndev->saradc_vaddr + SARADC_STATUS) & 0x1) && (timeout--))
+	{
+		// sleep for up to 10us while waiting for ADC to finish
+		//usleep_range(1, 10);
+	}
 
-	adc_value = readl(ndev->saradc_vaddr + SARADC_CH1_RESULT + (ndev->channel_index - 1) * 4) & 0xFFF;
-	pr_debug("cvi_saradc channel%d value = %#X\n", ndev->channel_index, adc_value);
-
+	if(timeout)
+	{
+		adc_value = readl(ndev->saradc_vaddr + SARADC_CH1_RESULT + (ndev->channel_index - 1) * 4) & 0xFFF;
+		pr_debug("cvi_saradc channel%d value = %#X\n", ndev->channel_index, adc_value);
+	}
+	else
+	{
+		adc_value = 0x8000;
+		pr_debug("cvi_saradc: timeout waiting for result\n");
+	}
+	outval = adc_value;
+	
 	spin_unlock_irqrestore(&ndev->close_lock, flags);
 
-	return 0;
+	// put outval in buffer
+    if (copy_to_user(buff, &outval, len))
+        return -EFAULT;
+
+    *offp += len;
+    return len;
 }
 
 ssize_t cvi_saradc_write(struct file *filp, const char *buff, size_t count, loff_t *offp)
@@ -204,17 +228,24 @@ static int cvi_saradc_open(struct inode *inode, struct file *filp)
 		container_of(inode->i_cdev, struct cvi_saradc_device, cdev);
 	unsigned long flags = 0;
 
-	platform_saradc_clk_init(ndev);
-
 	spin_lock_irqsave(&ndev->close_lock, flags);
 
+	if(ndev->use_count)
+	{
+		pr_debug("cvi_saradc_open - already in use\n");
+		spin_unlock_irqrestore(&ndev->close_lock, flags);
+		return -1;
+	}
+		
 	ndev->use_count++;
 
 	spin_unlock_irqrestore(&ndev->close_lock, flags);
 
+	platform_saradc_clk_init(ndev);
+
 	filp->private_data = ndev;
 
-	pr_debug("cvi_saradc_open\n");
+	pr_debug("cvi_saradc_open - success\n");
 
 	return 0;
 }
@@ -254,6 +285,7 @@ static ssize_t cv_saradc_show(struct device *dev, struct device_attribute *attr,
 	uint32_t value;
 	uint32_t adc_value;
 	unsigned long flags = 0;
+	uint32_t timeout = 100;
 
 	if (!ndev->saradc_vaddr) {
 		pr_err("Please echo channel before cat value\n");
@@ -276,13 +308,24 @@ static ssize_t cv_saradc_show(struct device *dev, struct device_attribute *attr,
 	pr_debug("cv_saradc_show: SARADC_CTRL = %#X\n", value);
 
 	// Check busy status
-	while (readl(ndev->saradc_vaddr + SARADC_STATUS) & 0x1)
-		;
+	while ((readl(ndev->saradc_vaddr + SARADC_STATUS) & 0x1) && (timeout--))
+	{
+		// sleep for up to 10us while waiting for ADC to finish
+		//usleep_range(1, 10);
+	}
 
-	adc_value = readl(ndev->saradc_vaddr + SARADC_CH1_RESULT + (ndev->channel_index - 1) * 4) & 0xFFF;
+	if(timeout)
+	{
+		adc_value = readl(ndev->saradc_vaddr + SARADC_CH1_RESULT + (ndev->channel_index - 1) * 4) & 0xFFF;
 
-	pr_debug("cvi_saradc channel%d value = %#X\n", ndev->channel_index, adc_value);
-
+		pr_debug("cvi_saradc channel%d value = %#X\n", ndev->channel_index, adc_value);
+	}
+	else
+	{
+		adc_value = 0x8000;
+		pr_debug("cvi_saradc: timeout waiting for ADC ready\n");
+	}
+	
 	spin_unlock_irqrestore(&ndev->close_lock, flags);
 
 	platform_saradc_clk_deinit(ndev);
