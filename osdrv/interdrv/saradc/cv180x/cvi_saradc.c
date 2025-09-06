@@ -51,11 +51,17 @@
 #define MUXA_PIN 503
 #define MUXB_PIN 504
 
+// uncomment this to use IRQ waiting
+//#define USE_IRQWAIT
+
 struct class *saradc_class;
 static dev_t saradc_cdev_id;
 extern int64_t cvi_efuse_read_from_shadow(uint32_t addr);
 
 static char flag = 'n';
+#ifdef USE_IRQWAIT
+static uint16_t chlval;
+#endif
 
 enum ADCChannel {
 	/* Top domain ADC ch1, ch2, ch3 */
@@ -104,8 +110,13 @@ static irqreturn_t cvi_saradc_irq(int irq, void *data)
 	unsigned long flags = 0;
 
 	spin_lock_irqsave(&ndev->close_lock, flags);
-
+	
+#ifdef USE_IRQWAIT
+	// get result, set ready flag
+	chlval = readl(ndev->saradc_vaddr + SARADC_CH1_RESULT + (ndev->channel_index - 1) * 4) & 0xFFF;
+#endif
 	flag = 'y';
+	
 	//clear irq
 	writel(0x1, ndev->saradc_vaddr + SARADC_INTR_CLR);
 
@@ -119,8 +130,12 @@ static void cvi_saradc_cyc_setting(struct cvi_saradc_device *ndev)
 	uint32_t value;
 
 	value = readl(ndev->saradc_vaddr + SARADC_CYC_SET);
+	value &= ~(0x1f << 0);
+	value |= (0x1f << 0);//set settling to max
+	value &= ~(0xf << 8);
+	value |= (0xf << 8);//set sample window to max
 	value &= ~(0xf << 12);
-	value |= (0xf << 12);//set saradc clock cycle=840ns
+	value |= (0xf << 12);//set saradc clock cycle=640ns
 	writel(value, ndev->saradc_vaddr + SARADC_CYC_SET);
 }
 
@@ -149,6 +164,12 @@ ssize_t cvi_saradc_read(struct file *filp, char *buff, size_t count, loff_t *off
 	pr_debug("cvi_saradc_read: %#X\n", value);
 	pr_debug("channel_index: %d\n", ndev->channel_index);
 
+#ifdef USE_IRQWAIT
+	flag = 'n';
+	// Enable saradc interrupt
+	writel(0x1, ndev->saradc_vaddr + SARADC_INTR_EN);
+#endif
+	
 	// Trigger measurement
 	value = readl(ndev->saradc_vaddr + SARADC_CTRL);
 	value |= 1;
@@ -156,6 +177,7 @@ ssize_t cvi_saradc_read(struct file *filp, char *buff, size_t count, loff_t *off
 
 	pr_debug("cvi_saradc_read: SARADC_CTRL = %#X\n", value);
 
+#ifndef USE_IRQWAIT
 	// Check busy status
 	while((readl(ndev->saradc_vaddr + SARADC_STATUS) & 0x1) && (timeout--))
 	{
@@ -174,6 +196,34 @@ ssize_t cvi_saradc_read(struct file *filp, char *buff, size_t count, loff_t *off
 		pr_debug("cvi_saradc: timeout waiting for result\n");
 	}
 	outval = adc_value;
+#else
+	// IRQ-based wait
+	spin_unlock_irqrestore(&ndev->close_lock, flags);
+	
+	while((flag == 'n') && (timeout--))
+	{
+		// sleep for up to 5us while waiting for ADC to finish
+		usleep_range(1, 5);
+	}
+
+	if(timeout)
+	{
+		adc_value = chlval & 0xFFF;
+		pr_debug("cvi_saradc channel%d value = %#X\n", ndev->channel_index, adc_value);
+	}
+	else
+	{
+		adc_value = 0x8000;
+		pr_debug("cvi_saradc: timeout waiting for result\n");
+	}
+	outval = adc_value;
+	
+	
+	spin_lock_irqsave(&ndev->close_lock, flags);
+
+	// Disable saradc interrupt
+	writel(0x0, ndev->saradc_vaddr + SARADC_INTR_EN);
+#endif
 	
 	spin_unlock_irqrestore(&ndev->close_lock, flags);
 
