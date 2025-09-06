@@ -52,7 +52,7 @@
 #define MUXB_PIN 504
 
 // uncomment this to use IRQ waiting
-//#define USE_IRQWAIT
+#define USE_IRQWAIT
 
 struct class *saradc_class;
 static dev_t saradc_cdev_id;
